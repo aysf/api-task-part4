@@ -2,12 +2,11 @@ package models
 
 import "gorm.io/gorm"
 
-// cetakan table
-
 type User struct {
 	gorm.Model
-	Name     string `json:"name" form:"name"`
-	Email    string `json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
-	Token    string `json:"token" form:"token"`
+	FirstName string `json:"firstName" form:"firstName"`
+	LastName  string `json:"lastName" form:"lastName"`
+	Email     string `json:"email" form:"email"`
+	Password  string `json:"password" form:"password"`
+	Token     string `json:"token" form:"token"`
 }

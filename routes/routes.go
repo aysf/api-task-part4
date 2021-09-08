@@ -1,10 +1,8 @@
 package routes
 
 import (
-	"aysf/day6r1/constants"
-	"aysf/day6r1/controllers"
-	"aysf/day6r1/middlewares"
-
+	"github.com/aysf/gojwt/constants"
+	"github.com/aysf/gojwt/controllers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -12,21 +10,31 @@ import (
 func New() *echo.Echo {
 	e := echo.New()
 
-	e.GET("/users", controllers.GetUsersController)
-	// e.GET("/users/:id", controllers.GetUserController)
+	// not auth
+	/*
+		[POST] create user!, [POST] login user!
+		[GET] book, [GET] book by id
+	*/
 	e.POST("/users", controllers.CreateUserController)
-	e.PUT("/users/:id", controllers.UpdateUserController)
-	e.DELETE("/users/:id", controllers.DeleteUserController)
 	e.POST("/login", controllers.LoginUsersController)
+	e.GET("/books", controllers.GetBooksController)
+	e.GET("/books/:id", controllers.GetBookByIdController)
 
-	
-	eJwt := e.Group("/jwt")
+	// auth
+	/*
+		get users!, get user by id!, delete user by id !, update user by id !
+		post, delete, update book
+	*/
+	eJwt := e.Group("/success")
 	eJwt.Use(middleware.JWT([]byte(constants.SECRET_JWT)))
-	eJwt.GET("/users/:id", controllers.GetUserDetailControllers)
-
-	eAuth := e.Group("")
-	eAuth.Use(middleware.BasicAuth(middlewares.BasicAuthDB))
-	eAuth.GET("/users/:id", controllers.GetUserController)
+	// user
+	eJwt.GET("/users", controllers.GetUsersController)
+	eJwt.GET("/users/:id", controllers.GetUserByIdController)
+	eJwt.DELETE("/users/:id", controllers.DeleteUserController)
+	eJwt.PUT("/users/:id", controllers.UpdateUserController)
+	// book
+	eJwt.POST("/books", controllers.CreateBookController)
+	eJwt.DELETE("/books/:id", controllers.DeleteBookController)
+	eJwt.PUT("/books/:id", controllers.UpdateBookController)
 	return e
-
 }

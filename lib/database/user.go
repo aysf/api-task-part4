@@ -1,9 +1,11 @@
 package database
 
 import (
-	"aysf/day6r1/config"
-	"aysf/day6r1/middlewares"
-	"aysf/day6r1/models"
+	"fmt"
+
+	"github.com/aysf/gojwt/config"
+	"github.com/aysf/gojwt/middlewares"
+	"github.com/aysf/gojwt/models"
 )
 
 func GetUsers() (interface{}, error) {
@@ -14,11 +16,11 @@ func GetUsers() (interface{}, error) {
 	return users, nil
 }
 
-func GetUser(id int) (interface{}, error) {
-	user := models.User{}
-	tx := config.DB.Find(&user, id)
-	if tx.Error != nil {
-		return nil, tx.Error
+func GetUserById(userId int) (interface{}, error) {
+	var user models.User
+
+	if err := config.DB.Find(&user, userId).Error; err != nil {
+		return nil, err
 	}
 	return user, nil
 }
@@ -38,7 +40,8 @@ func UpdateUser(id int, userUpdate *models.User) (interface{}, error) {
 		return nil, tx.Error
 	}
 	if tx.RowsAffected > 0 {
-		user.Name = userUpdate.Name
+		user.FirstName = userUpdate.FirstName
+		user.LastName = userUpdate.LastName
 		user.Email = userUpdate.Email
 		user.Password = userUpdate.Password
 	}
@@ -58,22 +61,16 @@ func DeleteUser(id int) (interface{}, error) {
 func LoginUsers(user *models.User) (interface{}, error) {
 	var err error
 	if err := config.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(user).Error; err != nil {
+		fmt.Println("err 1")
 		return nil, err
 	}
 	user.Token, err = middlewares.CreateToken(int(user.ID))
 	if err != nil {
+		fmt.Println("err 2")
 		return nil, err
 	}
 	if err := config.DB.Save(user).Error; err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
-func GetDetailUsers(userId int) (interface{}, error) {
-	var user models.User
-
-	if err := config.DB.Find(&user, userId).Error; err != nil {
+		fmt.Println("err 3")
 		return nil, err
 	}
 	return user, nil
